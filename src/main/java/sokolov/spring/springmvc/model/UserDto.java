@@ -1,13 +1,23 @@
 package sokolov.spring.springmvc.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Positive;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDto {
 
+    @Null
     private Long id;
+    @NotBlank
     private String name;
+    @NotBlank
+    @Email
     private String email;
+    @Positive
     private Integer age;
     private List<PetDto> pets = new ArrayList<>();
 

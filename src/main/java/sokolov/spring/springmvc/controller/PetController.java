@@ -1,5 +1,6 @@
 package sokolov.spring.springmvc.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class PetController {
 
     @PostMapping (path = "/pets")
     public ResponseEntity<PetDto> createPet(
-            @RequestBody PetDto petDto
+            @Valid @RequestBody PetDto petDto
     ){
 
         PetDto createdUser = petService.save(petDto);
@@ -35,7 +36,7 @@ public class PetController {
     @PutMapping(path = "/pets/{id}")
     public ResponseEntity<PetDto> updatePet(
             @PathVariable Long id,
-            @RequestBody PetDto petDto){
+            @Valid @RequestBody PetDto petDto){
         PetDto updatedUser =  petService.update(id, petDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
 

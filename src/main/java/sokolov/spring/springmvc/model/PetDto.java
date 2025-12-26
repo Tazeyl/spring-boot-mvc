@@ -1,8 +1,11 @@
 package sokolov.spring.springmvc.model;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class PetDto {
 
     private Long id;
+    @NotBlank
     private String name;
     private Long userId;
 
