@@ -41,7 +41,7 @@ public class GlobalExceptionValidation {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         var errorDto =  new ErrorMessageResponse(
-                "Сущность не найдена",
+                "Ошибка валидации запроса",
                 detailedMessage,
                 LocalDateTime.now()
         );
