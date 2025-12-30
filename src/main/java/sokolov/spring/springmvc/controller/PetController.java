@@ -28,17 +28,14 @@ public class PetController {
     public ResponseEntity<PetDto> createPet(
             @Valid @RequestBody PetDto petDto
     ){
-
-        PetDto createdUser = petService.save(petDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(petService.save(petDto));
     }
 
     @PutMapping(path = "/pets/{id}")
     public ResponseEntity<PetDto> updatePet(
             @PathVariable Long id,
             @Valid @RequestBody PetDto petDto){
-        PetDto updatedUser =  petService.update(id, petDto);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+        return ResponseEntity.ok(petService.update(id, petDto));
 
     }
 
@@ -52,7 +49,6 @@ public class PetController {
 
     @GetMapping(path =  "/pets/{id}")
     public ResponseEntity<PetDto> getPetsById(@PathVariable Long id){
-        PetDto petDto = petService.getById(id);
-        return ResponseEntity.ok(petDto);
+        return ResponseEntity.ok(petService.getById(id));
     }
 }

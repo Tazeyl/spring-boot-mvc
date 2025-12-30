@@ -17,8 +17,14 @@ public class PetService {
 
     public PetService(@Lazy UserService userService) {
         this.userService = userService;
-        this.petMap = new SoftReference<>(new HashMap<>(), null);
         this.idCounter = 0L;
+    }
+
+    private Map<Long, PetDto> getPetMap(){
+        if (petMap.get() == null){
+            petMap = new SoftReference<>(new HashMap<>(), null);
+        }
+        return petMap.get();
     }
 
     public PetDto save(PetDto petDto) {
@@ -29,7 +35,7 @@ public class PetService {
 
         userService.addPetToUser(newPet.getUserId(), newPet);
 
-        Objects.requireNonNull(petMap.get()).put(idCounter, newPet);
+        getPetMap().put(idCounter, newPet);
         return newPet;
     }
 
@@ -39,19 +45,17 @@ public class PetService {
         newPet.setName(petDto.getName());
         newPet.setUserId(userId);
 
-        Objects.requireNonNull(petMap.get()).put(idCounter, newPet);
+        getPetMap().put(idCounter, newPet);
         return newPet;
     }
 
     public PetDto update(Long id, PetDto petDto) {
         PetDto updatePet  = getById(id);
 
-        Long oldUserId = updatePet.getUserId();
-
         updatePet.setName(petDto.getName());
-        updatePet.setUserId(petDto.getUserId());
-
-        if (!Objects.equals(oldUserId, updatePet.getUserId())){
+        if (!Objects.equals(updatePet.getUserId(), petDto.getUserId())){
+            Long oldUserId = updatePet.getUserId();
+            updatePet.setUserId(petDto.getUserId());
             userService.removePetFromUser(oldUserId, updatePet.getId());
             userService.addPetToUser(petDto.getUserId(), petDto);
         }
@@ -62,12 +66,12 @@ public class PetService {
     public void delete(Long id) {
         PetDto petDto = getById(id);
         userService.removePetFromUser(petDto.getUserId(), id);
-        Objects.requireNonNull(petMap.get()).remove(id);
+        getPetMap().remove(id);
     }
 
     public PetDto getById(Long id) {
 
-        PetDto petDto = Objects.requireNonNull(petMap.get()).get(id);
+        PetDto petDto = getPetMap().get(id);
         if (petDto == null){
             throw new NoSuchElementException("Not found Pet with id = "+ id);
         }
@@ -76,7 +80,7 @@ public class PetService {
     }
 
     public List<PetDto> getAll() {
-        return Objects.requireNonNull(petMap.get()).values().stream().toList();
+        return getPetMap().values().stream().toList();
 
     }
 }

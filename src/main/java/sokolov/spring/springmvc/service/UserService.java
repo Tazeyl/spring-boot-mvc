@@ -18,8 +18,14 @@ public class UserService {
 
     public UserService(@Lazy PetService petService) {
         this.petService = petService;
-        this.userMap = new SoftReference<>(new HashMap<>(), null);
         this.idCounter = 0L;
+    }
+
+    private Map<Long, UserDto> getUserMap() {
+        if (userMap.get() == null) {
+            userMap = new SoftReference<>(new HashMap<>(), null);
+        }
+        return userMap.get();
     }
 
     public UserDto save(UserDto userDto) {
@@ -31,7 +37,7 @@ public class UserService {
 
         userDto.getPets().forEach(petDto -> newUser.getPets().add(petService.saveByUserCreate(newUser.getId(), petDto)));
 
-        Objects.requireNonNull(userMap.get()).put(idCounter, newUser);
+        getUserMap().put(idCounter, newUser);
         return newUser;
     }
 
@@ -55,7 +61,12 @@ public class UserService {
             }
         });
 
-        List<Long> forRemove = oldPets.stream().map(PetDto::getId).filter(aLong -> userDto.getPets().stream().map(PetDto::getId).noneMatch(aLong1 -> Objects.equals(aLong,aLong1))).toList();
+        List<Long> forRemove = oldPets.stream()
+                .map(PetDto::getId)
+                .filter(aLong -> userDto.getPets().stream()
+                        .map(PetDto::getId)
+                        .noneMatch(aLong1 -> Objects.equals(aLong,aLong1)))
+                .toList();
         forRemove.forEach(petService::delete);
 
 
@@ -64,12 +75,12 @@ public class UserService {
 
     public void delete(Long id) {
         getById(id);
-        Objects.requireNonNull(userMap.get()).remove(id);
+        getUserMap().remove(id);
     }
 
     public UserDto getById(Long id) {
 
-        UserDto userDto = Objects.requireNonNull(userMap.get()).get(id);
+        UserDto userDto = getUserMap().get(id);
         if (userDto == null) {
             throw new NoSuchElementException("Not found User with id = " + id);
         }
@@ -85,11 +96,14 @@ public class UserService {
     public void removePetFromUser(Long userId, Long petId) {
         UserDto userDto = getById(userId);
         List<PetDto> petDtoList = userDto.getPets();
-        PetDto petDto = petDtoList.stream().filter(petDto1 -> Objects.equals(petDto1.getId(), petId)).findFirst().orElseThrow(() -> new NoSuchElementException("Not found Pet with id = "));
+        PetDto petDto = petDtoList.stream()
+                .filter(petDto1 -> Objects.equals(petDto1.getId(), petId))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Not found Pet with id = "));
         petDtoList.remove(petDto);
     }
 
     public List<UserDto> getAll() {
-        return new ArrayList<>(Objects.requireNonNull(userMap.get()).values());
+        return new ArrayList<>(getUserMap().values());
     }
 }
